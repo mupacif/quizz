@@ -21,7 +21,7 @@ else
 ?>
 
 <div id="vue-instance">
-<ul><li v-for="q in questions">{{q.name}}</li></ul>
+
 <h3> Add question </h3>
   <textarea type="text" v-model="questionTextArea" placeholder="question"  rows="5" cols="100"> </textarea> <br>
   <button v-on:click="addQuestion" :disabled="!disabledAnswer" >Add</button>  <button v-on:click="addNextQuestion" " :disabled="disabledAnswer">next Question</button>
@@ -33,7 +33,7 @@ else
   </ul>
 
   
-
+<ul><li v-for="q in questions">{{q.name}}</li></ul>
 
 </div>
   <script src="//cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
