@@ -1,0 +1,85 @@
+ <!DOCTYPE html>
+ <html>
+<head>
+</head>
+<body>
+<div id="instance">
+
+   <h1> Add Chapters </h1> 
+<input type="text" v-model="chapterInput" placeholder="Chapter" >
+<button type="text" @click="addChapter" > add </button>
+<ul>
+		<li v-for="chapter in chapters">
+		<a href="addQuestions.php?id={{chapter.id}}">{{chapter.name}} </a> |  <a href="#" @click="deleteChapter(chapter.id)">delete</a>
+		</li>
+
+</ul>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
+  <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+ <script type="text/javascript">
+    
+  	var vm = new Vue(
+  	{
+el:'#instance'
+,
+data:
+{
+	chapterInput:"",
+	chapters:[]
+},
+created:function()
+{
+  axios.get("web/chapters").then(function (response) 
+          {
+ 				vm.chapters = response.data;
+          });
+},
+methods:
+{
+	/***
+	*methods to add chapters to the list
+	*/
+	addChapter:function()
+	{
+
+		     axios.post('web/chapter', {name:this.chapterInput})
+          .then(function (res) {
+            console.log(res)
+            		vm.chapters.push({id:res.data.id,name:vm.chapterInput});
+		            vm.chapterInput = "";
+          })
+          .catch(function (error) {
+            console.log(error);
+          }); 
+
+	},
+	deleteChapter: function(_idInterro)
+	{
+		 axios.delete('web/chapter/'+_idInterro)
+          .then(function (response) {
+            vm.refresh()
+          })
+          .catch(function (error) {
+            console.log(error);
+          }); 
+	},
+
+	  refresh:function()
+        { 
+           
+          axios.get("web/chapters").then(function (response) 
+          {
+              vm._data.chapters = response.data;
+            });
+      }
+}
+});
+
+  </script>
+
+ </body>
+
+ </html>
+
