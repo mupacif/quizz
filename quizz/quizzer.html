@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf8>
+        <link href="http//allfont.ru/allfont.css?fonts=ubuntu"
+        rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+<header>
+    <div id="close">
+  <div class="wrapper">
+  <a href="#" class="close-button">
+    <div class="in">
+      <div class="close-button-block"></div>
+      <div class="close-button-block"></div>
+    </div>
+    <div class="out">
+      <div class="close-button-block"></div>
+      <div class="close-button-block"></div>
+    </div>
+  </a>
+</div></div>
+  <div id="bilet">  <h2>Билет 2</h2></div>
+    </header>
+
+<div id="instance">
+
+<ol>
+<li v-for="question in questions"><b>{{question.text.name}}</b><br/>
+<img  alt="Езда на снегоходе" src="images\2_1.jpg"></br>
+<ul>
+<li v-for="answer in question.answers" style="list-style-type: none">
+<input type="radio" name="{{question.text.id}}" value="{{answer.correct}}"/><span>{{answer.name}}</span><br /></li>
+</ul>
+<br/>
+</li>
+
+
+
+</ol>
+
+</div>
+<p><button type="button" id="submit" /><b>ПРОВЕРИТЬ</b></button></p>
+<button   id="reset" >
+<script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
+  <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/javascript">
+/*  To get the parameter from url*/
+
+    path = window.location.href,
+    idx = path.lastIndexOf('?');
+    if (idx !== -1) {
+       path = path.substr(idx, path.length-1);
+     }
+
+  function $_GET(name) {
+    var a = new RegExp(name+"=([^&#=]*)");
+    a = a.exec(path);
+    if (null === a) return false;
+    return decodeURIComponent(a[1]);
+  }
+    var vm = new Vue(
+    {
+el:'#instance'
+,
+data:
+{
+
+  questions:[]
+},
+  created:function()
+        {
+            axios.get('../web/chapter/'+$_GET("idChapter"))
+            .then(function (response) {
+              var questions = response.data;
+              questions.forEach(function(question)
+              {
+
+
+                //for every question, load answers
+                   axios.get('../web/answers/'+question.id)
+                   .then(function (response) {
+                    // save the question and the answers
+                      vm.questions.push({text:question, answers: response.data})
+                   }).catch(function(error)
+                  {
+
+                       console.log(error);
+                   }
+                  );
+
+              });
+              
+              console.log(vm.questions);
+ 
+            }).catch(function(error)
+            {
+                  console.log("cant load anything")
+            })
+            ;
+        },
+methods:
+{
+  /***
+  *methods to add chapters to the list
+  */
+
+}
+});
+
+  </script>
+    </body>
+ 
+</html>

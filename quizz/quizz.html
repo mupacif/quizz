@@ -1,0 +1,51 @@
+ <!DOCTYPE html>
+ <html>
+<head>
+</head>
+<body>
+<div id="instance">
+
+   <h1> Add Chapters </h1> 
+
+<ul>
+		<li v-for="chapter in chapters">
+		<a href="quizzer.html?idChapter={{chapter.id}}">{{chapter.name}} </a> 
+
+</ul>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
+  <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+ <script type="text/javascript">
+    
+  	var vm = new Vue(
+  	{
+el:'#instance'
+,
+data:
+{
+
+	chapters:[]
+},
+created:function()
+{
+  axios.get("../web/chapters").then(function (response) 
+          {
+ 				vm.chapters = response.data;
+          });
+},
+methods:
+{
+	/***
+	*methods to add chapters to the list
+	*/
+
+}
+});
+
+  </script>
+
+ </body>
+
+ </html>
+

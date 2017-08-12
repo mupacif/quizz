@@ -25,11 +25,30 @@ else
  <a href="index.html">back to home</a> 
  <h3> Add question </h3>
   <textarea type="text" v-model="questionTextArea" placeholder="question"  rows="5" cols="100"> </textarea> <br>
-  <button v-on:click="addQuestion" :disabled="!disabledAnswer" >Add</button>  <button v-on:click="addNextQuestion" " :disabled="disabledAnswer">next Question</button>
-  <ul><li v-for="answer in answers"> {{answer.name}}  <span v-if="answer.correct"> ok </span>
+  <button v-on:click="addQuestion" :disabled="!disabledAnswer && !updatable" >
+  <span v-if="disabledAnswer">Add</span>
+  <span v-if="!disabledAnswer">update</span>
+  </button> 
+
+
+   <button v-on:click="addNextQuestion" " :disabled="disabledAnswer">next Question</button>
+
+
+ <!--   Display questions -->
+  <ul><li v-for="answer in answers"> 
+
+  <textarea type="text" placeholder="add some text" v-model="answers[$index].name"  rows="3" cols="90" :disabled="disabledAnswer" @change="updateCorrectAnswer($index)"> </textarea>
+
+<input type="checkbox" id="{{answer.id}}" v-model="answers[$index].correct" @click="updateCorrectAnswer($index)">
+   |
+   <a href="#" @click="deleteAnswer(answer.id,$index)">delete</a>
    </li>
 
-    <textarea type="text" v-model="answerTextArea" placeholder="answer"  rows="3" cols="90" :disabled="disabledAnswer"> </textarea> 
+
+<!--    Add new question -->
+<br/><br/>
+
+    <textarea type="text" v-model="answerTextArea" placeholder=" add new answer"  rows="3" cols="90" :disabled="disabledAnswer"> </textarea> 
     <input type="checkbox" name="correctAnswer" v-model="correctCb" :disabled="disabledAnswer"><br>
   <button v-on:click="addAnswer"  :disabled="disabledAnswer" >Add answer</button>
   </ul>
@@ -47,6 +66,7 @@ else
 
 </div>
   <script src="//cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
+  <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
   <script src="//unpkg.com/axios/dist/axios.min.js"></script>
 
   <script>
@@ -63,7 +83,9 @@ else
     			answers:[],
     			answerTextArea:"",
     			correctCb:false,
-    			disabledAnswer:true
+    			disabledAnswer:true,
+          updatable:false,
+          checkedQuestions:[]
 
     		},
     		created:function()
@@ -78,12 +100,21 @@ else
             })
             ;
     		},
-
+        watch:{
+          /** will be called if a change occurs **/
+          questionTextArea:function()
+          {
+              this.updatable = true;
+          }
+        },
     		methods:
     		{
     			addQuestion:function()
     			{
-
+//1st time : save
+      if(this.disabledAnswer)
+      {
+        console.log("add questions")
     				questionData = {id:-1,name: this.questionTextArea, idChapter : this.idChapter};
     				axios.post('web/addQuestion', questionData)
           .then(function (response) {
@@ -96,8 +127,23 @@ else
           .catch(function (error) {
             console.log(error);
           }); 
+        }else
+        {
+          console.log("update questions")
+          //2nd time = update
+                  axios.put('web/setQuestion', {idQuestion:this.currentQuestion,question:this.questionTextArea})
+          .then(function (response) {
+
+               vm.refresh();
+        
+          })
+          .catch(function (error) {
+            console.log(error);
+          }); 
+        }
+
    
-  
+      this.updatable = false;
     			},
     			addAnswer:function()
     			{
@@ -116,7 +162,34 @@ else
             console.log(error);
           }); 
 
-    			},addNextQuestion:function()
+    			},
+          deleteAnswer:function(id,index)
+          {
+             axios.delete('web/answer/'+id)
+                    .then(function (response) {
+                        console.log("answer deleted")
+                vm.answers.splice(index,1)
+          })
+          .catch(function (error) {
+            console.log(error);
+          }); 
+          },
+          updateCorrectAnswer:_.debounce(function(index)
+          {
+            console.log("update answer:"+index);
+            let idAnswer = this.answers[index].id;
+            let answer = this.answers[index].name;
+            let correct = this.answers[index].correct;
+            let link = 'web/answer/'+idAnswer;
+            console.log(link);
+          axios.put(link ,{answer:answer,correct:correct}).
+          then(function(response)
+          {
+            console.log(response.data);
+          })
+          },500
+          )
+          ,addNextQuestion:function()
     			{
     				
     				this.questionTextArea = ""
@@ -124,6 +197,7 @@ else
     				this.correctCb = false
     				this.currentQuestion = -1
     				this.disabledAnswer=true
+            this.updatable = false
             this.answers=[]
     			},
           deleteQuestion:function(id)
