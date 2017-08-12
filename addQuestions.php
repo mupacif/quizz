@@ -22,7 +22,8 @@ else
 
 <div id="vue-instance">
 
-<h3> Add question </h3>
+ <a href="index.html">back to home</a> 
+ <h3> Add question </h3>
   <textarea type="text" v-model="questionTextArea" placeholder="question"  rows="5" cols="100"> </textarea> <br>
   <button v-on:click="addQuestion" :disabled="!disabledAnswer" >Add</button>  <button v-on:click="addNextQuestion" " :disabled="disabledAnswer">next Question</button>
   <ul><li v-for="answer in answers"> {{answer.name}}  <span v-if="answer.correct"> ok </span>
@@ -35,7 +36,7 @@ else
 
 <!--   display all questions -->
 <ul><li v-for="q in questions">
-<a href="#" @click="loadQuestion(q.id)">
+<a href="#" @click="loadQuestion(q.id,$index)">
 {{q.name}} 
 </a>
 
@@ -101,7 +102,7 @@ else
     			addAnswer:function()
     			{
     				answer = {idQuestion: this.currentQuestion, name:this.answerTextArea,correct:this.correctCb};
-    				this.answers.push(answer);
+
 
     				axios.post('web/addAnswer', answer)
           .then(function (response) {
@@ -117,12 +118,13 @@ else
 
     			},addNextQuestion:function()
     			{
-    				this.answers=[]
+    				
     				this.questionTextArea = ""
     					this.answerTextArea = ""
     				this.correctCb = false
     				this.currentQuestion = -1
     				this.disabledAnswer=true
+            this.answers=[]
     			},
           deleteQuestion:function(id)
           {
@@ -136,9 +138,30 @@ else
             console.log(error);
           }); 
   },
-  loadQuestion:function(id)
+  /***
+  *load questions + its answer when user click on it
+  *into the list
+  */
+  loadQuestion:function(id,index)
   {
       console.log("load question:"+id);
+ axios.get('web/answers/'+id)
+            .then(function (response) {
+               vm.answers = response.data;
+               vm.currentQuestion = id;
+                vm.questionTextArea = vm.questions[index].name;
+                    vm.answerTextArea = "";
+            vm.correctCb = false;
+            vm.disabledAnswer=false
+
+            }).catch(function(error)
+            {
+              console.log(error);
+            }
+            );
+                 
+ 
+          
   },
     refresh:function()
         { 
