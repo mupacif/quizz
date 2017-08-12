@@ -137,12 +137,23 @@ $app->post('/setQuestion', function (Request $request) use($app) {
 
     return new Response("back:"+$ok,200);
 });
-
+/**
+get all question of a given chapter
+*/
 $app->get('/chapter/{id}',function($id) use($app)
 {
     $sql = "select q.idChapter, q.name, q.id from question q join chapter c on c.id = q.idChapter and c.id= ?";
     $post = $app['db']->fetchAll($sql, array((int) $id));
 return $app->json($post);
+});
+/**
+delete a quesiton
+*/
+$app->delete('/question/{id}', function($id) use($app){
+    $app['db']->executeQuery("PRAGMA foreign_keys = ON");
+    $post = $app['db']->delete('question', array('id' => $id));
+    return $app->json($post);
+
 });
 
 // answers
@@ -155,3 +166,4 @@ $app->post('/addAnswer', function (Request $request) use($app) {
 
     return  $app->json(array('id'=>$app['db']->lastInsertId()));
 });
+

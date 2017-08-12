@@ -27,13 +27,22 @@ else
   <button v-on:click="addQuestion" :disabled="!disabledAnswer" >Add</button>  <button v-on:click="addNextQuestion" " :disabled="disabledAnswer">next Question</button>
   <ul><li v-for="answer in answers"> {{answer.name}}  <span v-if="answer.correct"> ok </span>
    </li>
+
     <textarea type="text" v-model="answerTextArea" placeholder="answer"  rows="3" cols="90" :disabled="disabledAnswer"> </textarea> 
     <input type="checkbox" name="correctAnswer" v-model="correctCb" :disabled="disabledAnswer"><br>
   <button v-on:click="addAnswer"  :disabled="disabledAnswer" >Add answer</button>
   </ul>
 
-  
-<ul><li v-for="q in questions">{{q.name}}</li></ul>
+<!--   display all questions -->
+<ul><li v-for="q in questions">
+<a href="#" @click="loadQuestion(q.id)">
+{{q.name}} 
+</a>
+
+<!-- delete -->
+<a href="#" @click="deleteQuestion(q.id)">delete</a>
+
+</li></ul>
 
 </div>
   <script src="//cdn.jsdelivr.net/vue/1.0.16/vue.js"></script>
@@ -114,7 +123,31 @@ else
     				this.correctCb = false
     				this.currentQuestion = -1
     				this.disabledAnswer=true
-    			}
+    			},
+          deleteQuestion:function(id)
+          {
+            
+            axios.delete('web/question/'+id)
+                    .then(function (response) {
+                        console.log("question deleted")
+            vm.refresh()
+          })
+          .catch(function (error) {
+            console.log(error);
+          }); 
+  },
+  loadQuestion:function(id)
+  {
+      console.log("load question:"+id);
+  },
+    refresh:function()
+        { 
+           
+          axios.get('web/chapter/'+this.idChapter)
+            .then(function (response) {
+              vm.questions = response.data;
+            });
+      }
     		}
     	});
     	</script>
