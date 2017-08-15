@@ -5,7 +5,7 @@
 <body>
 <div id="instance">
 
-   <h1> Add Chapters </h1> 
+   <h1> Tickets list </h1> 
 
 <ul>
 		<li v-for="chapter in chapters">
@@ -24,7 +24,6 @@ el:'#instance'
 ,
 data:
 {
-
 	chapters:[]
 },
 created:function()
@@ -33,13 +32,6 @@ created:function()
           {
  				vm.chapters = response.data;
           });
-},
-methods:
-{
-	/***
-	*methods to add chapters to the list
-	*/
-
 }
 });
 
